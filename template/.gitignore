@@ -1,0 +1,22 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# env — envs live in Vercel (CONVENTIONS.md #6); never commit secrets
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# pre-migration table exports (business data — stays on the owner's machine)
+/exports/
+
+# misc
+.DS_Store
