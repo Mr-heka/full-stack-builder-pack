@@ -355,8 +355,8 @@ other branch). Then prove it, in order:
 Each check that ran is announced as it passes, opening with its fixed label — **"Check 1 of
 4 — deployed by the push"**, **"Check 2 of 4 — the site answers 200"**, **"Check 3 of 4 — the
 database change applied"**, **"Check 4 of 4 — the change is live on the page"**. Fixed for the
-same reason as `app-builder`'s proof labels: the worked examples (`examples/`) and the nightly
-QA fixtures (`qa/worked-examples/`) quote and key on them. A check this visit doesn't have —
+same reason as `app-builder`'s proof labels: the worked examples (`examples/`) and the
+maintainers' nightly QA fixtures quote and key on them. A check this visit doesn't have —
 no schema change, or the declined-undo path where check 4 waits — is said in a sentence, never
 skipped silently.
 

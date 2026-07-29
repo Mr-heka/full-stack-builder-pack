@@ -103,7 +103,7 @@ and *done* said over it is what stops anyone going back for it.
 The mini-plan closes with the same fixed question every time — **"Happy for me to build
 this?"** — and the yes that follows is the approval everything after stands on. The wording is
 fixed for the same reason as step 6's proof labels: the worked examples (`examples/`) quote it
-and the nightly QA fixtures (`qa/worked-examples/`) key on it.
+and the maintainers' nightly QA fixtures key on it.
 
 **2. Gate — business use on free tier.** Fires when the mini-plan says business use. Name both
 upgrades together, once, before anything exists (convention 6's business-use trigger; `STACK.md`
@@ -209,7 +209,7 @@ Each proof is announced as it passes, opening with its fixed label — **"Proof 
 deployed by the push"**, **"Proof 2 of 4 — the app is live"** (the production URL and its 200
 in the same breath), **"Proof 3 of 4 — the database is ready"**, **"Proof 4 of 4 — owner
 sign-in works"**. The labels are fixed so the worked-example transcripts (`examples/`) and the
-nightly QA fixtures (`qa/worked-examples/`) can quote and key on them; the sentence after each
+maintainers' nightly QA fixtures can quote and key on them; the sentence after each
 label is free.
 
 All four pass and the build is verified — convention 3's "done" in full. Any failure is fixed and
@@ -278,4 +278,4 @@ wins.
 - CWK's `deploy-to-vercel` (or any generic deploy/hosting skill) — the pack deploys only by
   pushing to `main` (convention 3); building or deploying a workshop app routes here, never to
   a CLI-deploy skill.
-- Custom domains — a committed post-M5 skill; the next-steps card carries the stopgap line.
+- Custom domains — a planned future skill; the next-steps card carries the stopgap line.
