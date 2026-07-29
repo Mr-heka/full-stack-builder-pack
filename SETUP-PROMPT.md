@@ -6,7 +6,7 @@ Copy everything inside the fence into Claude Code and press enter. That's the wh
 Install + run the full-stack-builder-pack for me, end to end.
 
 1. Detect my OS (Mac/Windows). Make ~/.claude/skills/ if it doesn't exist.
-2. Clone https://github.com/lukeselr/full-stack-builder-pack.git into
+2. Clone https://github.com/Mr-heka/full-stack-builder-pack.git into
    ~/.claude/skills/full-stack-builder-pack (Mac) or
    $HOME\.claude\skills\full-stack-builder-pack (Windows).
    No git on this machine yet? Install it first (Windows: winget install --id Git.Git -e,
