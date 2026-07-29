@@ -1,7 +1,7 @@
 # CONVENTIONS.md — the one blessed path
 
 > **Locked (2026-07-20).** The canonical
-> copy of this file lives at the root of `lukeselr/full-stack-builder-pack`; `app-builder`
+> copy of this file lives at the root of `Mr-heka/full-stack-builder-pack`; `app-builder`
 > injects a copy into every app it creates, so every generated app carries the doctrine in its own
 > repo. Pack skills and `deploy-doctor` quote this file; nobody owns a drifting copy.
 
@@ -18,8 +18,8 @@ whether it survives a company-training variant unchanged:
 | **[Org-compatible]** | The rule's *invariant* holds identically for an individual attendee and a company; a v2 company variant inherits the invariant as-is. The variant may generalize the owner from a person to an org, or layer company process on top — where it does, the convention's company extension names what changes and the invariant that carries over unchanged. |
 | **[Individual]** | Written for an attendee who owns their own accounts. A company variant *extends* it: only the extension point named in the convention may be substituted (org ownership, IT policy, who pays); the invariant carries over unchanged. |
 
-Open company-variant questions (account ownership, who pays Pro, IT policy) remain business decisions
-(deep-dive agenda #4). They are recorded, not resolved, here.
+Open company-variant questions (account ownership, who pays Pro, IT policy) remain business
+decisions. They are recorded, not resolved, here.
 
 ---
 
@@ -148,7 +148,7 @@ Consequences baked into the pack:
   through the management API but no inactivity timer, so the warning combines that status check
   with a heuristic anchored to the last deploy (or pack-side activity tracking) — never a precise
   countdown.
-- Unpause guidance ships in the next-steps template and the instructor runbook.
+- Unpause guidance ships in the next-steps template.
 - A day-30 still-live sweep must use a static route / HEAD request plus a **management-API status
   check** — a DB-touching ping resets the idle timer and fakes its own evidence, and the HEAD
   request alone cannot see a paused database.
@@ -226,8 +226,8 @@ owner's own plain English, naming this file so the owner knows where the rule li
 deliberately fixed: it is the one phrase the trap-tests key on, leaving the rest of the sentence
 free to be said naturally.
 
-This table is the trap-test source. Guardrails are enforced as trap-tests in the nightly QA
-autopilot (`qa/trap-tests/`): every row above is an adversarial fixture — a scripted owner puts the
+This table is the trap-test source. Guardrails are enforced as trap-tests in the maintainers'
+nightly QA autopilot: every row above is an adversarial fixture — a scripted owner puts the
 ask in their own words, and the run passes only if the redirect comes back — and anti-pattern
 matchers fail fast on any foreign deploy command. `vercel promote` used to undo a rollback stays
 exempt (convention 4).
