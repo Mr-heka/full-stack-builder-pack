@@ -18,12 +18,22 @@ Install + run the full-stack-builder-pack for me, end to end.
    read-only copy of the pack. Anything else — a different repo, or not a git repo at all so that
    command errors — delete nothing: rename it to full-stack-builder-pack-old, clone fresh, and
    tell me where the old one is so I can look at it later.
-3. Read skills/app-foundation-setup/SKILL.md and follow it: run foundation-check,
+3. Install the pack's nine skills where Claude Code actually looks. Claude Code only loads
+   personal skills laid out as ~/.claude/skills/<skill-name>/SKILL.md — the pack sitting there
+   as one nested folder is invisible to it. So copy each folder inside the clone's skills/
+   directory into ~/.claude/skills/ individually:
+   Mac:      cp -R ~/.claude/skills/full-stack-builder-pack/skills/* ~/.claude/skills/
+   Windows:  Copy-Item -Recurse -Force "$HOME\.claude\skills\full-stack-builder-pack\skills\*" "$HOME\.claude\skills\"
+   Leave the full-stack-builder-pack clone itself in place — the skills reach back into it for
+   template/, modules/, and CONVENTIONS.md. Re-running this copy on a later paste is safe: it
+   just refreshes the nine folders. When it's done, confirm
+   ~/.claude/skills/app-foundation-setup/SKILL.md exists.
+4. Read ~/.claude/skills/app-foundation-setup/SKILL.md and follow it: run foundation-check,
    fix whatever fails in order, re-check until everything is PASS.
-4. The only things I'll type are my own passwords and MFA codes when a sign-in
+5. The only things I'll type are my own passwords and MFA codes when a sign-in
    page opens, plus quick answers to a few questions (my name, my business email,
    where my recovery codes are saved). Everything else is yours.
-5. When the full-screen PASS banner is up, tell me I'm ready to build my first app.
+6. When the full-screen PASS banner is up, tell me I'm ready to build my first app.
    If it ends on the red FAIL banner instead, don't call it done — tell me plainly
    what's still failing, who has to act on each one, and what to do next.
 
