@@ -1,8 +1,7 @@
 # STACK.md — the platforms this pack builds on
 
-> **Locked (2026-07-20).** Source of truth for the
-> decisions below: `.claude/documents/full-stack-builder-pack-plan.md` (rnd-vault), M1 grilled
-> 2026-07-13, hardened through seven adversarial review rounds (Codex APPROVED, round 7).
+> **Locked (2026-07-20).** The decisions below are settled — hardened through seven
+> adversarial review rounds before locking. This file is their source of truth.
 
 ## The short version
 
@@ -140,10 +139,10 @@ Two alternatives were weighed and rejected:
 So the current position is a deliberately accepted risk over a short, personal-audience window, with
 the upgrade gate doing the real enforcement. It is not a technical problem with a technical fix.
 
-**Signed off (deep-dive agenda #2):** the short personal-audience evaluation window stands as
+**Signed off:** the short personal-audience evaluation window stands as
 written above. Who pays the platform fees once apps go to Pro — bundled into a higher ticket price,
-a premium tier, or owner-paid at the point of upgrade — remains a business decision; the cost
-lines land in the instructor runbook (M5) once packaging is decided.
+a premium tier, or owner-paid at the point of upgrade — remains a business decision, settled
+when packaging is decided.
 
 ## What this means for the pack
 

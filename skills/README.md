@@ -1,10 +1,10 @@
 # skills/
 
-One folder per skill, each with its own `SKILL.md`. `foundation-check`,
-`github-provision`, `vercel-provision`, `supabase-provision`,
+One folder per skill, each with its own `SKILL.md`. All nine skills —
+`foundation-check`, `github-provision`, `vercel-provision`, `supabase-provision`,
 `app-foundation-setup`, `app-builder`, `deploy-doctor`,
-`app-iterate` and `app-status` are live; the rest are placeholders until
-their milestone ships:
+`app-iterate` and `app-status` — are live, grouped by the milestone that
+shipped them:
 
 - **M3 provisioners** — `foundation-check`, `github-provision`, `vercel-provision`, `supabase-provision`, `app-foundation-setup`
 - **M2 builders** — `app-builder`, `app-iterate`, `app-status`

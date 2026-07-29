@@ -141,7 +141,8 @@ never walks Vercel's project list.
 **The two stub columns and the note that must accompany them:** *Sleeping soon?* (the pre-emptive
 sleep warning — "your app sleeps in ~2 days", always approximate) and *Drift* ("key mismatch —
 run deploy-doctor") render `deploy-doctor`'s check library — Supabase pause status,
-last-activity, env/key/CD drift — which is owned by M4's `deploy-doctor` and not yet shipped.
+last-activity, env/key/CD drift — which is owned by `deploy-doctor`; the feed into this table
+is not wired yet.
 Until it is, both columns show "—" plus this note: **rendered read-only when live, remediation
 doctor-only, and nothing guessed meanwhile** — no per-app sleep estimate gets invented from a
 heuristic here.

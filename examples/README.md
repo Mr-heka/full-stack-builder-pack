@@ -42,5 +42,4 @@ can understand — never a workaround you'd have to maintain.
 These conversations are also the pack's nightly test scripts: every night, an automated run
 builds these same apps for real — live address and all — then tears them down. When one of
 the platforms moves a button, the nightly run catches it before a workshop does. The machine
-half lives in [`qa/worked-examples/`](../qa/worked-examples/) — maintainers' territory,
-nothing an owner ever needs to open.
+half lives in the maintainers' QA harness — nothing an owner ever needs to open.

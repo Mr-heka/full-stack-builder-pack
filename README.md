@@ -42,4 +42,4 @@ every app it creates, so every generated app carries the doctrine in its own rep
 
 ---
 
-Built by Selr AI.
+Made by Selr AI.
