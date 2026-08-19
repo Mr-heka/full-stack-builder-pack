@@ -5,9 +5,10 @@ description: The real-browser driver — connects agent skills to the owner's ev
 
 # browser-connect
 
-> **Vendored copy** — canonical source is the stand-alone `browser-connect` repo, pinned here
-> at commit `23f0c17`. Edit there and re-vendor; the pack never fetches it live, so a workshop
-> install needs no second repo.
+> **Vendored copy** — canonical source is the stand-alone
+> [`selrai-company/browser-connect`](https://github.com/selrai-company/browser-connect) repo,
+> pinned here at commit `ecd46b8`. Edit there and re-vendor; the pack never fetches it live,
+> so a workshop install needs no second repo.
 
 The owner's everyday browser is where their accounts already live — signed-in sessions,
 remembered devices, a browser fingerprint no bot-detector flags. This skill is the one way any
