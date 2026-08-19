@@ -15,10 +15,11 @@ repo turns out to be invisible to the app (the same blessed scope set here); any
 that routes back to this skill.
 
 Every step opens with its detect and skips what already passes (the registry's rule: detect from
-the world, no state file — re-running is always safe). Credential entry runs under the hands-off
-window, and any browser Claude drives dies with its profile, or the owner is told what is left —
-the contract in [Consent and the credential window](#consent-and-the-credential-window) below
-(convention 7).
+the world, no state file — re-running is always safe). Browser work routes through
+`browser-connect`: handoff links open pinned to the owner's daily profile, and a driven browser
+is the owner's own connected one (extension mode, the mainline) or a kit-owned fallback profile
+that dies with the run. Credential entry runs under the hands-off window — the contract in
+[Consent and the credential window](#consent-and-the-credential-window) below (convention 7).
 
 ## Before this skill
 
@@ -39,26 +40,29 @@ waits for the owner's go-ahead:
 >   Windows ignores it, and nothing here pretends otherwise.
 > - I never see your password or MFA codes. While you type them I go hands-off completely — no
 >   reads, no screenshots, no key presses — until you tell me you're done.
-> - If I drive a browser for any step, it runs on its own throwaway profile, and I delete that
->   profile — cookies and sign-in sessions for GitHub, Vercel and Supabase alike — when
->   provisioning ends, and I check that it's gone. If anything on this machine holds that folder
->   open I'll tell you and show you exactly what to delete yourself, rather than pretend it's
->   gone. Your own browser is never touched.
+> - If I drive a browser for any step, it's normally your own everyday one, through the
+>   extension you approved at setup — I read pages and fill forms only as the steps spell out,
+>   any click that grants access stays yours, and when we're done I just disconnect: I create
+>   nothing in your browser and delete nothing in it. If instead we're on the fallback — no
+>   Chrome or Edge, or you said no to the extension — I drive a separate browser on its own
+>   throwaway profile, and I delete that profile — cookies and sign-in sessions for GitHub,
+>   Vercel and Supabase alike — when provisioning ends, and I check that it's gone. If anything
+>   on this machine holds that folder open I'll tell you and show you exactly what to delete
+>   yourself, rather than pretend it's gone.
 
 **Said once per sitting, not once per skill.** Those lines belong to the first provisioner that
 reaches a sign-in. If another provisioner already said them in this session — the workshop case,
 where `app-foundation-setup` runs the three in order — don't recite them again. Say only what
-changes here: the first bullet, where this skill's CLI keeps its token, and the third, whole — that
-a browser driven for any step here runs on its own throwaway profile, that Claude deletes that
-profile when provisioning ends and checks it is gone, that anything on this machine still holding
-that folder open gets named out loud along with exactly what the owner must delete, and that the
-owner's own browser is never touched. That third bullet is a change, not repetition:
-`github-provision` — normally the first to reach a sign-in — promises it never drives a browser at
-all, so what changes here is precisely that this skill may, and an owner told only afterwards that
-a folder holding their live sign-in sits on their disk was never asked. All four of its promises
-are said, the last one especially: hearing "I may drive a browser" straight after "every sign-in
-happens in your own browser" raises the question of whose, and that promise is the answer. Then
-check the owner is still happy to go ahead. The boundary promise and the credential window below
+changes here: the first bullet, where this skill's CLI keeps its token, and the third, whole —
+which browser a driven step uses in this sitting's mode: the owner's own connected one, where
+clicks that grant access stay theirs and teardown is a disconnect that deletes nothing, or the
+fallback's throwaway profile, deleted when provisioning ends, checked gone, with anything still
+holding it — and what the owner must delete themselves — named out loud. That third bullet is a
+change, not repetition: `github-provision` — normally the first to reach a sign-in — promises it
+never clicks or types in a browser, so what changes here is precisely that this skill does, and
+whose browser that is — the question "I may drive a browser" raises the moment it is said — is
+exactly what the bullet answers. Then check the owner is still happy to go ahead. The boundary
+promise and the credential window below
 are not re-recited — they were said once and they hold for the whole sitting. Consent recited three
 times stops being heard the first time. Whichever way the lines are said, say only the platform in
 front of you: they carry Windows and macOS so one file serves both, and reading both aloud is not
@@ -79,7 +83,23 @@ owner saying they're done closes the window — never a timeout, never peeking t
 Ending the turn is what makes that real: the announce and the owner's "done" bracket the window in
 the transcript, and the empty stretch between them is the evidence: verifiable, not promised.
 
-**Driven-browser teardown.** A browser Claude drives is launched on a dedicated automation profile
+**Which browser gets driven — and its teardown.** The mode comes from the BROWSER check's pin
+(`~/.fsbp/browser.json`), set at install by `browser-connect`; teardown is mode-dependent
+(convention 7).
+
+**Extension mode — the mainline.** The driven browser is the owner's own everyday one, attached
+through the Playwright MCP Bridge extension in their pinned profile. Their real sessions are in
+view, so `browser-connect`'s conduct rules govern: session-state reads are free and announced —
+detection-first, "already signed in as X" is a PASS to surface, never contamination — form-fill
+and navigation happen only where the steps below spell them out, and any click that grants,
+authorizes, or pays is the owner's, kept human as a consent choice rather than a technical limit.
+Navigating to a live OAuth Authorize page on a signed-in account is itself treated as a consented
+step: a previously-authorized grant can auto-complete the moment it loads. Teardown is a
+disconnect — nothing was created in that browser, nothing is deleted from it, ever — and the
+report line is **connected to your own browser — nothing created, nothing to delete**.
+
+**Kit-profile fallback** — the pin says `kit-profile` (no Chrome/Edge, or the owner declined the
+extension). A browser Claude launches runs on a dedicated automation profile
 **created fresh for this run** — never the owner's own, and never a shared or canonical automation
 profile that other sessions reuse; deleting one of those would be worse than deleting nothing. Give
 it a per-run name under one fixed parent — `~/.fsbp/browser-profiles/`, which on Windows is
@@ -113,8 +133,11 @@ after installs).
 **Wrong-account-SSO trap — every Continue with GitHub below, and step 3's app-install page:**
 before authorizing or installing, confirm the GitHub session in that browser belongs to the owner
 (the GH-AUTH active username); if it doesn't, sign out of GitHub in the browser and go hands-off
-while the owner signs in as themselves. A wrong session signs into — or silently creates — the
-wrong Vercel account, and `vercel whoami` still passes.
+while the owner signs in as themselves. In extension mode that confirmation is one read of the
+connected browser — the signed-in github.com username against GH-AUTH's active account — and the
+pinned profile makes the wrong-browser variant of this trap structurally impossible. A wrong
+session signs into — or silently creates — the wrong Vercel account, and `vercel whoami` still
+passes.
 
 - **Passes** → adopt. The account exists and the CLI is authed. Two owner attestations, fresh
   every run: the account is their own — not an employee's, not shared (the GH-OWNER rule, applied
@@ -136,10 +159,16 @@ wrong Vercel account, and `vercel whoami` still passes.
     session, then runs `vercel login` → Continue with GitHub. SSO tried first would miss the
     account and silently mint a fresh one under the GitHub identity — the exact duplicate adopt
     exists to prevent.
-  - **No** → sign-up, browser-driven: open <https://vercel.com/signup>, choose **Hobby**, click
-    **Continue with GitHub** — and go hands-off the moment GitHub asks the owner to sign in on
-    the fresh profile, until the owner says they're done. Then `vercel login` (owner-in-loop) so
-    the CLI mints and stores its token.
+  - **No** → sign-up in the driven browser, per the mode above. Extension mode opens with its
+    own detect: load <https://vercel.com/dashboard> in the connected browser — landing on the
+    dashboard means an account already exists ("you're already signed in to Vercel as X" —
+    announce it, take the **Yes** branch), a redirect to `/login` means genuinely none. Then
+    open <https://vercel.com/signup>, choose **Hobby**, and the **Continue with GitHub** click
+    is the owner's — it grants access, so it stays human — with hands-off from the moment any
+    sign-in or authorize screen is up, until they say they're done. On the fallback profile:
+    same route, and the GitHub sign-in and Authorize clicks are the owner's there too (a
+    launched browser is automation-scored — GitHub disables the Authorize button for it
+    regardless). Then `vercel login` (owner-in-loop) so the CLI mints and stores its token.
   - Re-detect: `vercel whoami` must print a username before step 3.
 
 The token lands in the vercel CLI's own auth file (convention 7's handling rule: each official
@@ -152,7 +181,9 @@ is `vercel whoami`; the file is never read or copied.
 only silent no-input commands, and the app's only trustworthy detect is a browser read
 (`gh api user/installations` returns 403 for OAuth tokens — verified, no CLI detect exists).
 
-Detect: open <https://github.com/apps/vercel> as the owner's GitHub account. The install button
+Detect: open <https://github.com/apps/vercel> as the owner's GitHub account — in extension mode
+this is a read-only look through the connected browser, Claude's to run and announce; otherwise
+it is the owner's look, link plus the words. The install button
 reading **Install** means the app is not installed. **Configure** alone is not yet a PASS — the
 button reflects any installation this user can reach and says nothing about scope. One more click:
 open the configuration and confirm the owner's own account is an install target with **All
@@ -160,19 +191,22 @@ repositories**. Both true → PASS. Installed only elsewhere (an org, another ac
 below; owner's account at narrower scope → owner-only — the owner widens it to All repositories
 on that same page, then re-detect.
 
-Fix (auto while Claude drives the browser — which it does only when a driven session from this
-run already holds the owner's GitHub sign-in, from the signup branch above or a fallback the owner
-asked for; owner-only otherwise — link plus the plain-English words): click **Install**, choose
-the owner's account, scope **All repositories**, confirm; GitHub hands back to vercel.com to
-finish the connection. All repositories is the blessed choice: every future app repo (one repo
+Fix: installing the app is a grant, so the **Install** click follows the mode's actor rule. In
+extension mode Claude opens the page in the connected browser and the owner clicks — choose their
+own account, scope **All repositories**, confirm — the consent choice, kept human. On the
+fallback, auto only while a driven session from this run already holds the owner's GitHub sign-in
+(from the signup branch above); owner-only otherwise — link plus the plain-English words. Either
+way GitHub hands back to vercel.com to finish the connection. All repositories is the blessed
+choice: every future app repo (one repo
 per app, convention 1) deploys with no per-app browser detour.
 Re-detect: the detect above passes — **Configure**, owner's account, **All repositories** — and
 Vercel's import screen lists the owner's GitHub repos.
 
 **4. Report.** First the driven-browser teardown, if any browser was driven this run. Then one
 table — CLI-NODE, CLI-VERCEL, VC-AUTH, VC-APP | PASS/FAIL | evidence | created or adopted — plus
-one teardown line: profile deleted (with the path), teardown FAILED (with the path and what the
-owner must delete by hand), or no browser driven. Anything still failing names who acts next.
+one teardown line: connected to your own browser — nothing created, nothing to delete (extension
+mode), profile deleted (with the path), teardown FAILED (with the path and what the owner must
+delete by hand), or no browser driven. Anything still failing names who acts next.
 
 All pass → Vercel provisioning is done — **unless the teardown line says FAILED**. A failed
 teardown is not a provisioning failure: it is not one of the checks, it fails no row, it turns
@@ -184,8 +218,9 @@ and Vercel — is still on this machine at that path and has to be deleted befor
 
 ## Rules quoted from CONVENTIONS.md
 
-- **Convention 7** — GitHub SSO chains identity; hands-off window during credential entry; driven
-  browser profile deleted after provisioning.
+- **Convention 7** — GitHub SSO chains identity; hands-off window during credential entry;
+  browser access through `browser-connect` with mode-dependent teardown: disconnect-and-delete-
+  nothing in the owner's own browser, fresh-profile-deleted-after on the kit fallback.
 - **Convention 3** — never `vercel deploy`. This skill deploys nothing and creates **no Vercel
   project**.
 - **Hobby is the starting plan.** The Vercel Pro ($20/mo) conversation belongs to the business-use
@@ -193,6 +228,8 @@ and Vercel — is still on this machine at that path and has to be deleted befor
 
 ## Not this skill
 
+- Which browser, which profile, which driver — `browser-connect`; this skill drives whatever
+  browser its mode provides and owns only the Vercel flow inside it.
 - GitHub account, git identity, gh CLI — `github-provision`.
 - Supabase account, org, CLI — `supabase-provision`.
 - The full pre-flight doctor and PASS/FAIL banner — `foundation-check`.

@@ -185,8 +185,21 @@ all three.
 Related handling rules: tokens live in each official CLI's native credential store (`gh` → OS
 credential store (Windows Credential Manager / macOS Keychain), `supabase` → keyring or its
 fallback file `~/.supabase/access-token` where no keyring is available, `vercel` → its auth
-file). Automation **detaches during credential entry** — a hands-off window with no DOM reads
-while the owner types — and the driven browser profile is deleted after provisioning.
+file). Automation **detaches during credential entry** — a hands-off window with no tool calls
+of any kind while the owner types.
+
+Browser access routes through the pack's `browser-connect` skill, and driven-browser teardown
+is **mode-dependent**. The mainline is **extension mode**: the driver attaches to the owner's
+own everyday browser — their daily browser and profile, detected deterministically and pinned,
+with every handoff link opened pinned to that profile, never via the bare default handler — so
+teardown is disconnect and delete nothing: the browser and its sessions are the owner's, and
+were never Claude's to create. An existing signed-in session found there is a detect PASS to
+announce ("already signed in as X — skipping signup"), never contamination. The **fallback** —
+the daily browser isn't Chrome/Edge, or the owner declines the extension — is a kit-owned
+Playwright profile created fresh for the run under `~/.fsbp/browser-profiles/`, deleted after
+provisioning and checked gone. In either mode, any click that grants, authorizes, or deletes
+stays the owner's click — in extension mode that is a consent choice made deliberately, not a
+technical limit.
 
 *Company extension:* a company may mandate SSO through its own identity provider or an enterprise
 GitHub org. The rule that survives is *one chained identity, hardened, owned by the business* — the

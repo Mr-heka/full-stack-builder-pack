@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Full-screen PASS/FAIL banner — readable from the front of a room.
-# Usage: bash banner.sh PASS "15/15 CHECKS PASSED"
+# Usage: bash banner.sh PASS "16/16 CHECKS PASSED"
 set -euo pipefail
 
 RESULT="${1:?usage: banner.sh PASS|FAIL [detail]}"

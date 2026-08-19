@@ -6,7 +6,8 @@ Rosa watches. Nothing here is polished after the fact: this is the shape every b
 
 **Who's who.** **Rosa** owns Rosa's Hair & Beauty. She has never built software. Before this
 conversation her laptop already passed the pack's foundation setup — the full-screen green
-PASS banner, accounts and sign-ins done. Lines like *[Claude works: …]* are Claude doing
+PASS banner, accounts and sign-ins done, her everyday browser connected — so links Claude
+opens land in the Chrome profile she actually uses. Lines like *[Claude works: …]* are Claude doing
 things, narrated so you can see the shape of the work without reading a single command.
 
 ---
@@ -46,8 +47,8 @@ No feature exists yet. The pipeline comes first, on purpose: an app born this wa
 be stranded on one laptop.]*
 
 **Claude:** One look-and-read for you — your dashboards are yours, I don't click in them.
-Open the Vercel project's **Domains** settings (link's in your browser) and read me the web
-address shown there.
+I've opened the Vercel project's **Domains** settings in your usual browser profile — read me
+the web address shown there.
 
 **Rosa:** It says rosas-hair-beauty.vercel.app.
 
@@ -62,8 +63,8 @@ day to day the app never uses it, and I keep it nowhere.
 
 **Rosa:** Saved in my password manager.
 
-**Claude:** Two settings only you can click, both in your Supabase dashboard. I'll give you
-each link, you read back what you see.
+**Claude:** Two settings only you can click, both in your Supabase dashboard. I'll open each
+one in that same browser profile, you read back what you see.
 
 First: **Project Settings → Integrations → GitHub**. Connect it to **rosas-hair-beauty**,
 leave the working directory as ".", and turn on **Deploy to production** for the main branch.

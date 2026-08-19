@@ -115,7 +115,7 @@ vercel env pull <scratch>/.env.audit --environment=production --project <project
 
 That pulled file holds **every** production secret in plaintext, not just the two this check reads.
 It lands in scratch, never in the app's working directory; it is deleted the moment the comparison
-is done, checked gone, and reported in three states the way the provisioners report a browser
+is done, checked gone, and reported in three states the way the provisioners report a driven kit
 profile: deleted (with the path), deletion FAILED (with the path and what the owner must delete by
 hand), or none written. `--project <name-or-id>` — verified on CLI 56.4.1, where it defaults to the
 linked project — is what lets this run for an app with no clone on this machine; never run

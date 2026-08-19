@@ -19,6 +19,14 @@ Open with this skill's group of the detect registry —
 table at the top of that file — under that file's rules. What passes is skipped. No state file:
 re-running this skill only ever touches what is broken right now.
 
+One more detect comes free when the BROWSER check is green in extension mode: read who
+github.com says is signed in, in the owner's connected browser, and announce it — a signed-in
+session the owner confirms is theirs is the adopt path found early ("already signed in as X —
+skipping signup"). Read-only, announced as it happens, never during the hands-off window. The
+consent this read rides on is the one the owner gave when they connected their browser at
+install — approving the extension is approving reads through it — which is why it can precede
+this skill's own consent lines, said later at the first sign-in.
+
 Then route on one question to the owner — **"do you have a GitHub account of your own?"**
 
 | The owner's situation | Path |
@@ -50,8 +58,10 @@ waits for the owner's go-ahead:
 > - I never see your password, MFA codes, or recovery codes. While you type them I go hands-off
 >   completely — no reads, no screenshots, no key presses — until you tell me you're done.
 > - Every sign-in happens in your own browser. I open a page — meaning I hand the address to
->   *your* default browser, never to one I control — or I hand you the link. I never drive a
->   browser in this skill, so there is no automation session holding your credentials.
+>   *your* browser, pinned to your usual profile, never to a separate browser I launched — or I
+>   hand you the link. I never click or type in a browser in this skill; at most, if your browser is
+>   connected through the extension you approved at setup, I *read* which account is already
+>   signed in, tell you what I saw, and skip the steps that turn out to be already done.
 
 Read that location back as soon as gh has one to give — never a guess, and once per run. Where
 GH-AUTH failed and a fresh login follows, it is the account line of the `gh auth status` re-detect
@@ -62,22 +72,26 @@ is the account line that detect has already printed.
 reaches a sign-in — usually this one, since the SSO chain starts here. If another provisioner
 already said them in this session — the workshop case, where `app-foundation-setup` runs the three
 in order — don't recite them again. Say only what changes here: the first bullet, where this
-skill's CLI keeps its token, and the third, that this skill drives no browser at all. Then check
+skill's CLI keeps its token, and the third, that this skill never clicks or types in a browser —
+reads of signed-in state through the connected browser are the most it does. Then check
 the owner is still happy to go ahead. The boundary promise and the credential window below are not
 re-recited — they were said once and they hold for the whole sitting. Consent recited three times
 stops being heard the first time. Whichever way the lines are said, say only the platform in front
 of you: they carry Windows and macOS so one file serves both, and reading both aloud is not the
 intent.
 
-**"Open the page" means the owner's own browser.** Everywhere this skill says Claude opens a page
-— the device-code page, the sign-out page, the owner-only settings links, the signup form — it
-means handing the address to the machine's default browser and stopping there. Never a
-browser-automation tool, never an automation profile, not once. This is the whole reason the skill
-carries no teardown contract: it tears nothing down because it drives nothing. Satisfying an "open
-the page" step with browser automation would drive a browser holding the owner's GitHub session on
-a profile nothing in this file is written to delete, and would void that exemption silently. If a
-step seems to need a driven browser, it belongs to `vercel-provision` or `supabase-provision`,
-which carry the teardown contract — not here.
+**"Open the page" means the owner's own browser, pinned.** Everywhere this skill says Claude
+opens a page — the device-code page, the sign-out page, the owner-only settings links, the signup
+form — it means opening the address through `browser-connect` rung 1: the owner's daily browser
+and pinned profile, named explicitly, never the bare default handler (a running Chrome routes
+bare opens to whichever window last had focus — the wrong-profile misroute). Clicking and typing
+in a browser stay out of this skill entirely. What the connected browser (extension mode) adds is
+**read-only session detection**: outside the hands-off window, Claude may read who github.com
+says is signed in and announce it — "already signed in as hshaw41 — skipping signup" — a detect
+PASS to surface, never contamination (convention 7). Reads only, always announced. Anything that
+clicks in a browser belongs to `vercel-provision` or `supabase-provision`, which carry the
+driven-browser contract — not here; and this skill still carries no teardown contract, because
+reading the owner's browser creates nothing to tear down.
 
 **The hands-off window.** It opens the moment Claude hands the owner a sign-in of any kind — a
 login command started, a link given, a page opened in their browser, an OAuth authorize screen or
@@ -158,6 +172,8 @@ Anything still failing is reported as FAIL with who has to act — never silentl
 
 ## Not this skill
 
+- Which browser, which profile, which driver — `browser-connect`; this skill only opens pinned
+  links and reads session state through the connection it established.
 - Verifying the whole machine across all three platforms — `foundation-check`; this skill runs
   only its own registry group.
 - Vercel and Supabase sign-in — `vercel-provision` and `supabase-provision`, which SSO with the

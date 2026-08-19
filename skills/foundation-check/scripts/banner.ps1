@@ -1,5 +1,5 @@
 # Full-screen PASS/FAIL banner — readable from the front of a room.
-# Usage: pwsh banner.ps1 -Result PASS -Detail "15/15 CHECKS PASSED"
+# Usage: pwsh banner.ps1 -Result PASS -Detail "16/16 CHECKS PASSED"
 #        (no pwsh? powershell -ExecutionPolicy Bypass -File banner.ps1 — same arguments)
 param(
     [Parameter(Mandatory)][ValidateSet('PASS', 'FAIL')][string]$Result,
