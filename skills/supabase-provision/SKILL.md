@@ -50,10 +50,11 @@ changes here: the first bullet, where this skill's CLI keeps its token, and the 
 a browser driven for any step here runs on its own throwaway profile, that Claude deletes that
 profile when provisioning ends and checks it is gone, that anything on this machine still holding
 that folder open gets named out loud along with exactly what the owner must delete, and that the
-owner's own browser is never touched. That third bullet is a change, not repetition:
-`github-provision` — normally the first to reach a sign-in — promises it never drives a browser at
-all, so what changes here is precisely that this skill may, and an owner told only afterwards that
-a folder holding their live sign-in sits on their disk was never asked. All four of its promises
+owner's own browser is never touched. That third bullet is a change, not repetition: the
+connectors that usually reach sign-ins first (`github-provision`, `vercel-provision`) ride the
+owner's daily browser or a persistent kit profile, so what changes here is precisely that this
+skill's driven browser is throwaway and deleted, and an owner told only afterwards that a folder
+holding their live sign-in sits on their disk was never asked. All four of its promises
 are said, the last one especially: hearing "I may drive a browser" straight after "every sign-in
 happens in your own browser" raises the question of whose, and that promise is the answer. Then
 check the owner is still happy to go ahead. The boundary promise and the credential window below

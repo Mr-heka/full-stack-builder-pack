@@ -179,14 +179,21 @@ account:
 3. **Recovery codes saved, and the owner states where.** Recovery codes only exist once 2FA is on,
    which is why enrollment comes first. **Claude never sees the codes.**
 
-These are hard acceptance criteria for provisioning, not advice. Provisioning does not pass without
-all three.
+These are hard acceptance criteria for the **app-building flow** — `foundation-check`'s bar,
+seeded by the day-before pre-flight email — not for the workshop connectors: `github-provision`
+and `vercel-provision` deliver account + access, detection-first, and defer hardening to that flow
+rather than interrogating in the room. An app is not built on an account that has not cleared all
+three; a connector finishes without asking about any of them.
 
 Related handling rules: tokens live in each official CLI's native credential store (`gh` → OS
 credential store (Windows Credential Manager / macOS Keychain), `supabase` → keyring or its
 fallback file `~/.supabase/access-token` where no keyring is available, `vercel` → its auth
 file). Automation **detaches during credential entry** — a hands-off window with no DOM reads
-while the owner types — and the driven browser profile is deleted after provisioning.
+while the owner types. Driven-browser profiles are context-dependent: on a single-owner attendee
+machine the connectors ride the owner's daily browser (extension mode) or a persistent kit
+profile, where staying signed in across runs is the feature; fresh-per-run profiles deleted after
+provisioning are the rule on operator and multi-account machines, where cross-account linking is
+the hazard.
 
 *Company extension:* a company may mandate SSO through its own identity provider or an enterprise
 GitHub org. The rule that survives is *one chained identity, hardened, owned by the business* — the
