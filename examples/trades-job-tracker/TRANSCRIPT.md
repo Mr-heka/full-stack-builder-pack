@@ -8,8 +8,8 @@ anything exists, not after. The build itself rides the same rails as
 here.
 
 **Who's who.** **Dave** runs Harbour Plumbing — him and an apprentice. Foundation setup
-already passed on his laptop (the green PASS banner). Lines like *[Claude works: …]* are
-Claude doing things, narrated.
+already passed on his laptop (the green PASS banner, everyday browser connected). Lines like
+*[Claude works: …]* are Claude doing things, narrated.
 
 ---
 
@@ -50,7 +50,8 @@ Happy for me to build this?
 **harbour-plumbing** under Dave's own account, connected to Vercel with "every save goes
 live automatically" switched on, before any feature exists.]*
 
-**Claude:** Open the Vercel project's **Domains** settings and read me the address there.
+**Claude:** The Vercel project's **Domains** settings are open in your usual browser profile —
+read me the address there.
 
 **Dave:** It says harbour-plumbing.vercel.app.
 
@@ -62,7 +63,8 @@ nowhere.
 
 **Dave:** In the password manager.
 
-**Claude:** Your two dashboard clicks, same as every build. First: **Project Settings →
+**Claude:** Your two dashboard clicks, same as every build — each page opened in that same
+browser profile. First: **Project Settings →
 Integrations → GitHub** — connect **harbour-plumbing**, working directory ".", **Deploy to
 production** on for the main branch, then reload and look for the connected repository and a
 **Disable integration** button.

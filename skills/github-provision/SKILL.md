@@ -19,8 +19,10 @@ finds an account**:
 1. **CLI** — `gh auth status`: an active github.com account, and its token scopes. gh not
    installed yet is this probe coming back empty — [Install](#install), then re-probe.
 2. **API** — `gh api user`: login, name, email (null when private or unreadable), account id.
-3. **Browser** — the driven browser's github.com session, only when 1 and 2 found nothing and a
-   browser tool is available.
+3. **Browser** — the connected browser's github.com session (extension mode, a read-only look,
+   announced as it happens), only when 1 and 2 found nothing and the BROWSER check is green. The
+   consent this read rides on is the one the owner gave when they connected their browser at
+   install — approving the extension is approving reads through it.
 
 What a probe finds is **announced and skipped** — "you're already signed in as `<login>`, skipping
 straight to git identity" — never re-asked, never treated as a problem. An account or session that
@@ -29,12 +31,12 @@ one silently. Re-running this skill on a finished machine is free: probe 1 passe
 [proof block](#proof-of-done) prints, nothing is asked and nothing re-authenticates.
 
 **The one question** — only when every probe comes back empty: **"Have you created a GitHub
-account before? Yes, no — or if you're not sure, tell me the email you usually use and I'll
-check."**
+account before? Yes, no — or if you're not sure, the signup form can tell us on the spot."**
 
 - **Yes** → [Connect](#connect).
 - **No** → [Create](#create).
-- **Not sure** → open the signup page and enter the email they gave: GitHub answers on the spot.
+- **Not sure** → open the signup page — pinned — and the owner enters the email they usually
+  use: GitHub answers on the spot.
   It reports the email as already taken (however GitHub words it) → an account exists →
   [Connect](#connect), with password reset as the recovery move if the password is gone. Accepted →
   no account → [Create](#create), continuing from that same half-filled form.
@@ -44,18 +46,18 @@ emails are not this skill's job ([Not this skill](#not-this-skill)).
 
 ## The browser
 
-With a browser-automation tool available (Playwright MCP in the pack's blessed setup) Claude drives
-the browser; without one it opens each page in the owner's default browser and talks them through.
-Either way, the same rules:
+Browser access routes through the pack's `browser-connect` skill, and in this skill it is
+**read-only**: Claude opens pages pinned to the owner's daily profile (rung 1 — never the bare
+default handler; a running Chrome routes bare opens to whichever window last had focus, the
+wrong-profile misroute) and, in extension mode, reads who github.com says is signed in —
+announced as it happens, never during the hands-off window. Clicking and typing in a browser stay
+out of this skill entirely; anything that clicks belongs to `vercel-provision` or
+`supabase-provision`, which carry the driven-browser contract — and this skill carries no
+teardown contract, because reading the owner's browser creates nothing to tear down. The rules:
 
 - **The owner's daily browser is the best browser** — extension mode, riding the sessions they
-  already have. Where the workshop setup installed the bridge extension, use it. Fallback: a headed
-  browser on the persistent kit profile `~/.fsbp/browser-profiles/default/` (Windows:
-  `%USERPROFILE%\.fsbp\browser-profiles\default\`) — persistent on purpose: on a single-owner
-  machine, staying signed in across runs is the feature. The machine-class test is probe 1:
-  `gh auth status` listing one account (or none) is the single-owner attendee case; several
-  accounts marks an operator or multi-account machine, where cross-account linking is the real
-  hazard and the browser runs on a fresh-per-run profile, deleted after the run.
+  already have. Where the workshop setup installed the bridge extension, use it to read; where it
+  didn't, every page still opens pinned and the owner reports what they see.
 - **Sessions found are detection, not contamination.** A logged-in account discovered in the
   browser is announced and adopted — never signed out, never cleaned up.
 - **The heads-up line.** The first time a browser page opens this run, and again before any
@@ -89,11 +91,12 @@ Device-code auth, choreographed as one smooth moment:
    background and read the one-time code from its output — the flags pre-answer every prompt.
    `repo` and `workflow` are what pushing an app template carrying GitHub Actions files needs;
    `user` is what lets the email-verified state come from the API instead of from questions.
-2. Heads-up line, then open <https://github.com/login/device> and enter the code — typed by Claude
-   in a driven browser, or handed over ready to paste.
+2. Heads-up line, then open <https://github.com/login/device> — pinned to the owner's profile —
+   with the code handed over ready to paste. Claude never clicks or types in a browser in this
+   skill ([The browser](#the-browser)).
 3. A password or 2FA screen appearing → hands-off window until the owner says done.
-4. The **Authorize github** button is GitHub's own first-party grant: click it in a driven browser,
-   or the owner clicks. The login command exiting — `Logged in as <login>` — closes the moment.
+4. The **Authorize github** button is GitHub's own first-party grant: the owner clicks it. The
+   login command exiting — `Logged in as <login>` — closes the moment.
 
 Already authenticated → never re-authenticate for a scope this skill can work without: `user`
 missing costs nothing here (git identity falls back to the noreply address). Only a token missing
@@ -105,13 +108,13 @@ Wrong account active → `gh auth switch`, never a re-login.
 
 Account creation is the owner's moment inside Claude's choreography:
 
-1. Heads-up line, then open <https://github.com/signup> — email pre-filled when the "not sure"
-   branch already collected it — and hand over: the owner types their own email, password and
-   username. Any email they like, personal or business — their call, no commentary.
+1. Heads-up line, then open <https://github.com/signup> — pinned; the "not sure" branch arrives
+   here with the email already entered — and hand over: the owner types their own email, password
+   and username. Any email they like, personal or business — their call, no commentary.
 2. GitHub emails a launch code; the owner reads it from their inbox and enters it. Hands-off
    throughout — the form holds their password.
 3. Signup lands signed in with the email verified by the launch code itself. From here Claude
-   drives every dashboard step; the owner never navigates settings pages. Continue at
+   opens every page needed — pinned — so the owner never hunts through settings. Continue at
    [Connect](#connect).
 
 CAPTCHA is probabilistic — zero appearances in live testing, but GitHub scores the flow — so the
@@ -147,6 +150,8 @@ Anything that could not be fixed prints **instead of** the done-line, as
 
 ## Not this skill
 
+- Which browser, which profile, which driver — `browser-connect`; this skill only opens pinned
+  links and reads session state through the connection it established.
 - **Account hardening** — 2FA, recovery codes, backup emails, business-email policy. That bar
   belongs to `foundation-check` in the app-building flow (seeded by the pre-flight email), not to a
   connector: this skill delivers account + access for today.

@@ -5,7 +5,10 @@ chase message). The attendee opens Claude Code on their own laptop and pastes th
 nothing else installed, no pack required. Safe to paste again at any point; it only ever fixes
 what is actually broken right now.
 
-Canonical source for the checks: [checks.md](checks.md).
+Canonical source for the checks: [checks.md](checks.md). This prompt embeds the registry's 15
+account/CLI checks; the sixteenth, BROWSER, stays out on purpose — it needs the installed pack
+(the vendored `browser-connect` scripts and the MCP config), so it runs at pack install and in
+`foundation-check`, never in the day-before email.
 
 ````text
 You are running a workshop pre-flight check. Verify this machine is ready to build and deploy a

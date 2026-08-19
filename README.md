@@ -17,7 +17,8 @@ plain English.
 
 | Skill | What it does |
 |---|---|
-| `skills/foundation-check` | One prompt → PASS/FAIL table across accounts, CLIs, git identity |
+| `skills/browser-connect` | The real-browser driver: pinned handoff links, extension-mode drive of your own browser, fallback profile |
+| `skills/foundation-check` | One prompt → PASS/FAIL table across accounts, CLIs, git identity, browser driver |
 | `skills/github-provision` | Detection-first GitHub connector: account, gh auth (`repo`+`workflow`), git identity from the profile |
 | `skills/vercel-provision` | Detection-first Vercel connector: Hobby account via Continue-with-GitHub, CLI device-flow login, GitHub app connect |
 | `skills/supabase-provision` | Supabase via GitHub SSO, org, CLI + token, smoke test |

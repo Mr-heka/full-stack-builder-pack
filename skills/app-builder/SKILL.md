@@ -42,7 +42,7 @@ mailer would silently drop every customer's link.
 
 ## Before this skill
 
-Foundation is green: the full registry passes (`foundation-check`, all 15 checks — accounts,
+Foundation is green: the full registry passes (`foundation-check`, all 16 checks — accounts,
 CLIs, git identity, Supabase org) **and** `vercel-provision`'s VC-APP holds (the Vercel GitHub
 app, which lives outside the registry). `app-foundation-setup` gets it there. This skill never
 provisions accounts and never re-negotiates identity; any auth check failing routes to its
@@ -52,9 +52,10 @@ provisioner per the registry's mapping.
 
 Claude's access to GitHub, Vercel and Supabase here comes from the sign-ins `app-foundation-setup`
 already made in the CLIs — `gh`, `vercel`, `supabase` — so no sign-in in this skill is Claude's to
-perform. The dashboard touchpoints are **owner-only**: Claude gives the link and the plain-English
-words, the owner clicks in their own browser signed in as themselves, and reads back the one thing
-that proves it took —
+perform. The dashboard touchpoints are **owner-only**: Claude hands the link over — a
+`browser-connect` rung-1 pinned open into the owner's daily browser profile, which is opening a
+page for them, not driving — the owner clicks, signed in as themselves, and reads back the one
+thing that proves it took —
 
 - **Supabase → Project Settings → Integrations → GitHub** (step 4) — after a reload the section
   shows the connected repo and a **Disable integration** button.
@@ -69,7 +70,7 @@ So Claude drives no browser: there is no automation profile to tear down and no 
 to hold, because Claude signs in to nothing here. The sign-ins the skill does involve are the
 owner's own — step 6's proof 4, the magic link into their own app, and the dashboard session the
 touchpoints above assume — and neither needs a profile or a credential window. This skill's line in
-the three-state driven-browser report is always the third one — **no browser driven**. Browsers get
+the driven-browser report is always the same one — **no browser driven**. Browsers get
 driven during provisioning, under the provisioners' own "Consent and the credential window" contract
 ([`supabase-provision`](../supabase-provision/SKILL.md#consent-and-the-credential-window),
 [`vercel-provision`](../vercel-provision/SKILL.md#the-browser)); this skill

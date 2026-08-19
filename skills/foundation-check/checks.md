@@ -1,12 +1,16 @@
 # Detect-check registry
 
-The reusable detect module for the M3 onboarding skills — 15 checks. This file is canonical:
-[PASTE-PROMPT.md](PASTE-PROMPT.md) embeds a standalone copy of the registry, regenerated in the
-same commit as any change here. `foundation-check` runs every check; `supabase-provision` opens
-with its own group as its detect-before-create step:
+The reusable detect module for the M3 onboarding skills — 16 checks. This file is canonical:
+[PASTE-PROMPT.md](PASTE-PROMPT.md) embeds a standalone copy of the 15 account/CLI checks,
+regenerated in the same commit as any change here — BROWSER is the one check it leaves out,
+because it needs the installed pack (the vendored `browser-connect` scripts and the MCP config)
+and belongs to install day, not the day-before email. `foundation-check` runs every check;
+`browser-connect` and `supabase-provision` each open with their own group as their
+detect-before-create step:
 
 | Skill | Opens with |
 |---|---|
+| `browser-connect` | BROWSER |
 | `supabase-provision` | CLI-SUPABASE, SB-\* |
 
 `github-provision` and `vercel-provision` are detection-first connectors that carry their own
@@ -26,6 +30,10 @@ standalone runs the `GH-*` group first.
 - **Owner attestations are detects too.** GH-OWNER, GH-RECOVERY, and the business-email
   confirmations in GIT-EMAIL and GH-EMAIL come from asking the owner, fresh every run — the
   owner's answer is the world; never cache it.
+- **One pinned exception.** BROWSER may read `~/.fsbp/browser.json` for exactly two facts — the
+  owner's explicit profile override, and the owner's decline of the extension — because both are
+  stated choices, not re-derivable from the world (`browser-connect`'s own exception). Everything
+  else in that check is detected fresh: the detect script, the MCP config, the connection probe.
 - **Fresh shell after installs.** A CLI installed this run is invisible to the current shell's PATH;
   re-run its detect in a new shell.
 - **Fix classes.** `auto` — Claude completes it directly (it may ask the owner a question first).
@@ -45,6 +53,17 @@ standalone runs the `GH-*` group first.
 | CLI-GH | `gh --version` | prints a version | auto — Windows `winget install --id GitHub.cli -e`; macOS `brew install gh` |
 | CLI-VERCEL | `vercel --version` | prints a version | auto — `npm install -g vercel` (needs CLI-NODE) |
 | CLI-SUPABASE | `supabase --version` | prints a version | auto — Windows, in PowerShell: `scoop bucket add supabase https://github.com/supabase/scoop-bucket.git; scoop install supabase` (no Scoop? `irm get.scoop.sh \| iex` first); macOS `brew install supabase/tap/supabase` |
+
+## Browser
+
+| ID | Detect | PASS when | Fix |
+|---|---|---|---|
+| BROWSER | `bash ~/.claude/skills/browser-connect/scripts/detect.sh` (macOS) / `pwsh ~/.claude/skills/browser-connect/scripts/detect.ps1` (Windows) — read-only JSON: daily browser, ranked profiles, pick, pin — plus `claude mcp get playwright` for the extension-mode server | a driver rung is established. Extension mode: a `playwright` MCP server running with `--extension`, `~/.fsbp/browser.json` pins a profile the detect still lists, **and** one read-only probe through that server succeeds (any page snapshot — config alone can't see whether the owner's two extension clicks ever happened; a probe left waiting on a connect approval is a FAIL per the rules above, and its fix is the onboarding's connect step). Kit-profile fallback: the pin records `"mode": "kit-profile"` **and** the detect corroborates it (`extension_capable: false`), or the pin records the owner's decline — the pinned-exception fact that lives only there | auto — run `browser-connect`'s onboarding ladder: announce the detected pick (owner's one-word override beats it), write the MCP config, open the Web Store page pinned to the picked profile, the owner's two clicks + restart, optional one-time token paste for silent connects |
+
+Evidence for the table is the mode plus the pick: "extension — Chrome 'Profile 1'
+(owner@example.com)" or "kit-profile fallback". A pinned profile the detect no longer lists is a
+FAIL — re-detect, re-announce, re-pin, and (extension mode) re-run the two-click install in the
+new profile, since the extension is per-profile.
 
 ## Git identity
 

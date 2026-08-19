@@ -1,6 +1,6 @@
 ---
 name: foundation-check
-description: Workshop pre-flight doctor for the full-stack builder pack. Verifies GitHub, Vercel, and Supabase accounts, their CLIs, and git identity in one run — PASS/FAIL table, fixes what it can, ends with a full-screen banner. Use before provisioning or building, after any interruption, or any time machine state is unknown; safe to re-run.
+description: Workshop pre-flight doctor for the full-stack builder pack. Verifies GitHub, Vercel, and Supabase accounts, their CLIs, git identity, and the browser-connect driver in one run — PASS/FAIL table, fixes what it can, ends with a full-screen banner. Use before provisioning or building, after any interruption, or any time machine state is unknown; safe to re-run.
 ---
 
 # foundation-check
@@ -40,6 +40,8 @@ No state file, ever. The world is the state.
 - Creating accounts, orgs, or projects — `github-provision`, `vercel-provision`, and
   `supabase-provision` own creation; they open with their group of this skill's detect checks
   (mapping at the top of `checks.md`).
+- Establishing the browser driver — `browser-connect` owns the BROWSER fix: the pick, the pin,
+  the extension choreography.
 - Running the whole onboarding to green — `app-foundation-setup` orchestrates check → fix →
   re-check across the provisioners.
 - Anything after an app exists — post-deploy drift is `deploy-doctor`; building is `app-builder`.
@@ -47,4 +49,5 @@ No state file, ever. The world is the state.
 ## Standalone use
 
 [PASTE-PROMPT.md](PASTE-PROMPT.md) is the self-contained copy of this skill for the workshop
-pre-flight email — it works on a laptop that has never seen this pack.
+pre-flight email — it works on a laptop that has never seen this pack, which is exactly why it
+carries the 15 account/CLI checks and not BROWSER: that one needs the installed pack.

@@ -13,8 +13,10 @@ project lives (one project per app, convention 6); `app-builder` assumes it exis
 re-negotiates it.
 
 Every step opens with its detect and skips what already passes (M3 rule: detect from the world, no
-state file — re-running is always safe). Credential entry runs under the hands-off window, and any
-browser Claude drives dies with its profile, or the owner is told what is left — the contract in
+state file — re-running is always safe). Browser work routes through `browser-connect`: handoff
+links open pinned to the owner's daily profile, and a driven browser is the owner's own connected
+one (extension mode, the mainline) or a kit-owned fallback profile that dies with the run.
+Credential entry runs under the hands-off window — the contract in
 [Consent and the credential window](#consent-and-the-credential-window) below (convention 7).
 
 ## Before this skill
@@ -37,27 +39,24 @@ waits for the owner's go-ahead:
 >   macOS and Linux honour that, Windows ignores it, and nothing here pretends otherwise.
 > - I never see your password or MFA codes. While you type them I go hands-off completely — no
 >   reads, no screenshots, no key presses — until you tell me you're done.
-> - If I drive a browser for any step, it runs on its own throwaway profile, and I delete that
->   profile — cookies and sign-in sessions for GitHub, Vercel and Supabase alike — when
->   provisioning ends, and I check that it's gone. If anything on this machine holds that folder
->   open I'll tell you and show you exactly what to delete yourself, rather than pretend it's
->   gone. Your own browser is never touched.
+> - If I drive a browser for any step, it's normally your own everyday one, through the
+>   extension you approved at setup — I read pages and fill forms only as the steps spell out,
+>   any click that grants access stays yours, and when we're done I just disconnect: I create
+>   nothing in your browser and delete nothing in it. If instead we're on the fallback — no
+>   Chrome or Edge, or you said no to the extension — I drive a separate browser on its own
+>   throwaway profile, and I delete that profile — cookies and sign-in sessions for GitHub,
+>   Vercel and Supabase alike — when provisioning ends, and I check that it's gone. If anything
+>   on this machine holds that folder open I'll tell you and show you exactly what to delete
+>   yourself, rather than pretend it's gone.
 
-**Said once per sitting, not once per skill.** Those lines belong to the first provisioner that
-reaches a sign-in. If another provisioner already said them in this session — the workshop case,
-where `app-foundation-setup` runs the three in order — don't recite them again. Say only what
-changes here: the first bullet, where this skill's CLI keeps its token, and the third, whole — that
-a browser driven for any step here runs on its own throwaway profile, that Claude deletes that
-profile when provisioning ends and checks it is gone, that anything on this machine still holding
-that folder open gets named out loud along with exactly what the owner must delete, and that the
-owner's own browser is never touched. That third bullet is a change, not repetition: the
-connectors that usually reach sign-ins first (`github-provision`, `vercel-provision`) ride the
-owner's daily browser or a persistent kit profile, so what changes here is precisely that this
-skill's driven browser is throwaway and deleted, and an owner told only afterwards that a folder
-holding their live sign-in sits on their disk was never asked. All four of its promises
-are said, the last one especially: hearing "I may drive a browser" straight after "every sign-in
-happens in your own browser" raises the question of whose, and that promise is the answer. Then
-check the owner is still happy to go ahead. The boundary promise and the credential window below
+**Said once per sitting, not once per skill.** This block is the sitting's one full consent
+recital: the detection-first connectors (`github-provision`, `vercel-provision`) collapse consent
+to one-line heads-ups in their own files and recite no block, so these lines are said whole the
+first time this skill reaches a sign-in — even when the connectors ran first in the workshop case,
+where `app-foundation-setup` runs the three in order. If some earlier skill in this session
+already said them whole, don't recite them again: say only what changes here — the first bullet,
+where this skill's CLI keeps its token, and the third, whole — and check the owner is still happy
+to go ahead. The boundary promise and the credential window below
 are not re-recited — they were said once and they hold for the whole sitting. Consent recited three
 times stops being heard the first time. Whichever way the lines are said, say only the platform in
 front of you: they carry Windows and macOS so one file serves both, and reading both aloud is not
@@ -78,7 +77,23 @@ owner saying they're done closes the window — never a timeout, never peeking t
 Ending the turn is what makes that real: the announce and the owner's "done" bracket the window in
 the transcript, and the empty stretch between them is the evidence: verifiable, not promised.
 
-**Driven-browser teardown.** A browser Claude drives is launched on a dedicated automation profile
+**Which browser gets driven — and its teardown.** The mode comes from the BROWSER check's pin
+(`~/.fsbp/browser.json`), set at install by `browser-connect`; teardown is mode-dependent
+(convention 7).
+
+**Extension mode — the mainline.** The driven browser is the owner's own everyday one, attached
+through the Playwright MCP Bridge extension in their pinned profile. Their real sessions are in
+view, so `browser-connect`'s conduct rules govern: session-state reads are free and announced —
+detection-first, "already signed in as X" is a PASS to surface, never contamination — form-fill
+and navigation happen only where the steps below spell them out, and any click that grants,
+authorizes, or pays is the owner's, kept human as a consent choice rather than a technical limit.
+Navigating to a live OAuth Authorize page on a signed-in account is itself treated as a consented
+step: a previously-authorized grant can auto-complete the moment it loads. Teardown is a
+disconnect — nothing was created in that browser, nothing is deleted from it, ever — and the
+report line is **connected to your own browser — nothing created, nothing to delete**.
+
+**Kit-profile fallback** — the pin says `kit-profile` (no Chrome/Edge, or the owner declined the
+extension). A browser Claude launches runs on a dedicated automation profile
 **created fresh for this run** — never the owner's own, and never a shared or canonical automation
 profile that other sessions reuse; deleting one of those would be worse than deleting nothing. Give
 it a per-run name under one fixed parent — `~/.fsbp/browser-profiles/`, which on Windows is
@@ -123,10 +138,14 @@ installs).
   itself back to the terminal. **Wrong-account-SSO trap:** before authorizing, the GitHub session
   in that browser must belong to the owner (the GH-AUTH active username); if it doesn't, sign out
   of GitHub (and supabase.com, if signed in) in the browser and go hands-off while the owner
-  signs in as themselves.
+  signs in as themselves. In extension mode that confirmation is one read of the connected
+  browser — the signed-in github.com username against GH-AUTH's active account — and the pinned
+  profile makes the wrong-browser variant of the trap structurally impossible.
 - Owner lost in the browser → fall back to portal-driving (the xero-mcp-setup donor pattern):
-  drive the same route click by click in a driven browser, under the credential-window contract
-  above — hands-off while credentials are typed, teardown when provisioning ends.
+  drive the same route click by click in the driven browser the mode provides — the owner's own
+  connected one, where the Continue-with-GitHub and authorize clicks stay theirs, or the
+  fallback profile — under the credential-window contract above: hands-off while credentials
+  are typed, teardown per the mode.
 - Re-detect: `supabase projects list` must exit 0 before step 3.
 
 The token is minted and stored by the CLI's native storage mechanism — the OS keyring (Windows
@@ -159,8 +178,9 @@ channels ship the CLI's Bun implementation as `supabase`; pack scripts read its 
 
 **5. Report.** First the driven-browser teardown, if any browser was driven this run. Then one
 table — CLI-SUPABASE, SB-AUTH, SB-ORG, SMOKE | PASS/FAIL | evidence | created or adopted — plus
-one teardown line: profile deleted (with the path), teardown FAILED (with the path and what the
-owner must delete by hand), or no browser driven. Anything still failing names who acts next.
+one teardown line: connected to your own browser — nothing created, nothing to delete (extension
+mode), profile deleted (with the path), teardown FAILED (with the path and what the owner must
+delete by hand), or no browser driven. Anything still failing names who acts next.
 
 All pass → Supabase provisioning is done — **unless the teardown line says FAILED**. A failed
 teardown is not a provisioning failure: it is not one of the checks, it fails no row, it turns
@@ -172,8 +192,10 @@ Supabase — is still on this machine at that path and has to be deleted before 
 
 ## Rules quoted from CONVENTIONS.md
 
-- **Convention 7** — GitHub SSO chains identity; hands-off window during credential entry; driven
-  browser profile deleted after provisioning; tokens live in each CLI's native store.
+- **Convention 7** — GitHub SSO chains identity; hands-off window during credential entry;
+  browser access through `browser-connect` with mode-dependent teardown (disconnect-and-delete-
+  nothing in the owner's own browser; fresh-profile-deleted-after on the kit fallback); tokens
+  live in each CLI's native store.
 - **Convention 6, said up front, not discovered in production:** one Supabase project per app,
   and two free-tier cliffs. **Cliff 1 — project cap:** the free tier allows roughly **two active
   projects per organisation**, so one project per app means the **third app** triggers
@@ -188,6 +210,8 @@ Supabase — is still on this machine at that path and has to be deleted before 
 
 ## Not this skill
 
+- Which browser, which profile, which driver — `browser-connect`; this skill drives whatever
+  browser its mode provides and owns only the Supabase flow inside it.
 - GitHub account, git identity, gh CLI — `github-provision`.
 - Vercel account, CLI, GitHub app — `vercel-provision`.
 - The full pre-flight doctor and PASS/FAIL banner — `foundation-check`.
