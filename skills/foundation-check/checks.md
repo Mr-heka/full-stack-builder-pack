@@ -2,18 +2,19 @@
 
 The reusable detect module for the M3 onboarding skills — 15 checks. This file is canonical:
 [PASTE-PROMPT.md](PASTE-PROMPT.md) embeds a standalone copy of the registry, regenerated in the
-same commit as any change here. `foundation-check` runs every check; each provisioner opens with
-its own group as its detect-before-create step:
+same commit as any change here. `foundation-check` runs every check; `supabase-provision` opens
+with its own group as its detect-before-create step:
 
 | Skill | Opens with |
 |---|---|
-| `github-provision` | CLI-GIT, CLI-GH, GIT-\*, GH-\* |
-| `vercel-provision` | CLI-NODE, CLI-VERCEL, VC-\* |
 | `supabase-provision` | CLI-SUPABASE, SB-\* |
 
-The `vercel-provision` and `supabase-provision` groups assume the `GH-*` group already passes —
-their auth fixes sign in with GitHub (SSO). `app-foundation-setup` runs the groups in order; a
-provisioner running standalone runs the `GH-*` group first.
+`github-provision` and `vercel-provision` are detection-first connectors that carry their own
+detects inline (see each skill); their groups below — CLI-GIT, CLI-GH, GIT-\*, GH-\* and CLI-NODE,
+CLI-VERCEL, VC-\* — remain the doctor's bar for the app-building flow. The `vercel-provision` and
+`supabase-provision` fixes assume the `GH-*` group already passes — their auth signs in with
+GitHub (SSO). `app-foundation-setup` runs the groups in order; `supabase-provision` running
+standalone runs the `GH-*` group first.
 
 ## Rules
 

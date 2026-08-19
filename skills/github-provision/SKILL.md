@@ -1,169 +1,160 @@
 ---
 name: github-provision
-description: Get one hardened GitHub account onto this machine for the full-stack builder pack — adopt the owner's existing account or create one, install git and the gh CLI, authenticate into gh's own token storage, and verify business email + 2FA + recovery codes. Use when foundation-check fails a git/gh/GH-* check, when an attendee needs GitHub set up, or standalone before vercel-provision and supabase-provision. Detect-before-create; safe to re-run.
+description: Detection-first GitHub connector — probes gh auth, the GitHub API and the browser session, fixes only what is missing, and asks at most one question ("have you created a GitHub account before?"), only when every probe comes back empty. Delivers a GitHub account, git + gh installed, gh authenticated with repo and workflow scopes, and git identity set silently from the GitHub profile (noreply address when the email is private). Use to set up GitHub on a machine, before vercel-provision, or to re-verify — re-runs detect everything and ask nothing.
 ---
 
 # github-provision
 
-The account this skill delivers is the identity for everything after it: Vercel and Supabase sign
-in with GitHub (`CONVENTIONS.md` convention 7), so one GitHub account gets adopted — or created —
-once, hardened, and never duplicated. Done means: git + gh installed; the active account is one
-the owner controls, signed in with a token gh stores itself; and convention 7's three hard
-criteria verified — business email, 2FA via the API, recovery codes saved somewhere the owner
-names.
+Done means four things, all verified from the world: a GitHub account the owner controls; git and
+the gh CLI installed; gh authenticated into that account with the `repo` and `workflow` scopes; and
+git identity set from the GitHub profile — the noreply address when the email is private, so the
+first push never bounces off GitHub's private-email protection (GH007). This account is the
+identity for everything after it: Vercel signs in with it (`CONVENTIONS.md` convention 7).
 
-## Detect, then route
+## Detect, don't ask
 
-Open with this skill's group of the detect registry —
-[checks.md](../foundation-check/checks.md): CLI-GIT, CLI-GH, GIT-\*, GH-\*, per the mapping
-table at the top of that file — under that file's rules. What passes is skipped. No state file:
-re-running this skill only ever touches what is broken right now.
+Everything inferable is inferred, silently, in this order — **stopping at the first probe that
+finds an account**:
 
-Then route on one question to the owner — **"do you have a GitHub account of your own?"**
+1. **CLI** — `gh auth status`: an active github.com account, and its token scopes. gh not
+   installed yet is this probe coming back empty — [Install](#install), then re-probe.
+2. **API** — `gh api user`: login, name, email (null when private or unreadable), account id.
+3. **Browser** — the driven browser's github.com session, only when 1 and 2 found nothing and a
+   browser tool is available.
 
-| The owner's situation | Path |
-|---|---|
-| Has their own account — signed in here or not | **Adopt** it. Never create a duplicate. |
-| The only account around is an employee's or shared | **Create fresh** — the one exception to adopt |
-| No account | **Create** |
+What a probe finds is **announced and skipped** — "you're already signed in as `<login>`, skipping
+straight to git identity" — never re-asked, never treated as a problem. An account or session that
+detection finds is the owner's world: adopt it. Several accounts on the machine → adopt the active
+one silently. Re-running this skill on a finished machine is free: probe 1 passes, the
+[proof block](#proof-of-done) prints, nothing is asked and nothing re-authenticates.
 
-Adopt is the default on purpose: two accounts on one laptop is the wrong-account-SSO trap —
-Vercel and Supabase chain to whichever GitHub session the browser happens to hold, and the
-attendee finds out weeks later that their app lives under the wrong identity.
+**The one question** — only when every probe comes back empty: **"Have you created a GitHub
+account before? Yes, no — or if you're not sure, tell me the email you usually use and I'll
+check."**
+
+- **Yes** → [Connect](#connect).
+- **No** → [Create](#create).
+- **Not sure** → open the signup page and enter the email they gave: GitHub answers on the spot.
+  It reports the email as already taken (however GitHub words it) → an account exists →
+  [Connect](#connect), with password reset as the recovery move if the password is gone. Accepted →
+  no account → [Create](#create), continuing from that same half-filled form.
+
+That is the whole interview. Name and git email come from the API; 2FA, recovery codes and backup
+emails are not this skill's job ([Not this skill](#not-this-skill)).
+
+## The browser
+
+With a browser-automation tool available (Playwright MCP in the pack's blessed setup) Claude drives
+the browser; without one it opens each page in the owner's default browser and talks them through.
+Either way, the same rules:
+
+- **The owner's daily browser is the best browser** — extension mode, riding the sessions they
+  already have. Where the workshop setup installed the bridge extension, use it. Fallback: a headed
+  browser on the persistent kit profile `~/.fsbp/browser-profiles/default/` (Windows:
+  `%USERPROFILE%\.fsbp\browser-profiles\default\`) — persistent on purpose: on a single-owner
+  machine, staying signed in across runs is the feature. The machine-class test is probe 1:
+  `gh auth status` listing one account (or none) is the single-owner attendee case; several
+  accounts marks an operator or multi-account machine, where cross-account linking is the real
+  hazard and the browser runs on a fresh-per-run profile, deleted after the run.
+- **Sessions found are detection, not contamination.** A logged-in account discovered in the
+  browser is announced and adopted — never signed out, never cleaned up.
+- **The heads-up line.** The first time a browser page opens this run, and again before any
+  sign-in page: one line — "opening GitHub sign-in; your password stays between you and GitHub" —
+  then open it. One line, not a recital.
+- **The hands-off window.** The moment the owner is typing a password or a code, Claude goes
+  completely hands-off — no reads, no screenshots, no keystrokes — until the owner says they're
+  done.
+- **Handing a link to a multi-profile Chrome:** launch the Chrome binary with
+  `--profile-directory=` set to the owner's daily profile — the profile directory (under Chrome's
+  `User Data`, named in `Local State`) with the largest `History` file; recency lies. A bare `open`
+  routes to whichever window last had focus. Single profile → no pick to make.
+- **Same browser for the whole chain.** `vercel-provision` reuses this browser and the GitHub
+  session in it, so the owner signs in once.
 
 ## Install
 
-Fix CLI-GIT and CLI-GH per the registry (winget / brew), re-detect in a fresh shell. Set GIT-NAME
-and GIT-EMAIL from the owner's answers — the same business email the account will use.
+`git --version` and `gh --version` print versions, or fix silently: macOS `brew install git gh`;
+Windows `winget install --id Git.Git -e` and `winget install --id GitHub.cli -e`. Two macOS
+realities: a fresh Mac answers `git --version` with the Command Line Tools dialog — that dialog
+*is* the git install, tell the owner to click through it; and a Mac without Homebrew gets Homebrew
+first (the one command on <https://brew.sh>) — heads-up line, owner types their password for it.
+A CLI installed this run is invisible to the current shell — re-detect in a fresh shell
+invocation.
 
-## Consent and the credential window
+## Connect
 
-Before the first sign-in of a run, Claude says the consent lines — plain English, out loud, then
-waits for the owner's go-ahead:
+Device-code auth, choreographed as one smooth moment:
 
-> - Your GitHub sign-in token is stored by the gh CLI itself — Windows Credential Manager here,
->   the Keychain on a Mac, or, where the CLI can't reach a credential store, a plain-text file in
->   gh's own config folder — the same place `gh auth login` puts it when you run it by hand. gh
->   tells us which: `gh auth status` names the store it used, and I'll read that back to you. What
->   actually protects it is your Windows login — your macOS login on a Mac — and your disk
->   encryption.
-> - I never see your password, MFA codes, or recovery codes. While you type them I go hands-off
->   completely — no reads, no screenshots, no key presses — until you tell me you're done.
-> - Every sign-in happens in your own browser. I open a page — meaning I hand the address to
->   *your* default browser, never to one I control — or I hand you the link. I never drive a
->   browser in this skill, so there is no automation session holding your credentials.
+1. Start `gh auth login -h github.com --web --git-protocol https -s repo,workflow,user` in the
+   background and read the one-time code from its output — the flags pre-answer every prompt.
+   `repo` and `workflow` are what pushing an app template carrying GitHub Actions files needs;
+   `user` is what lets the email-verified state come from the API instead of from questions.
+2. Heads-up line, then open <https://github.com/login/device> and enter the code — typed by Claude
+   in a driven browser, or handed over ready to paste.
+3. A password or 2FA screen appearing → hands-off window until the owner says done.
+4. The **Authorize github** button is GitHub's own first-party grant: click it in a driven browser,
+   or the owner clicks. The login command exiting — `Logged in as <login>` — closes the moment.
 
-Read that location back as soon as gh has one to give — never a guess, and once per run. Where
-GH-AUTH failed and a fresh login follows, it is the account line of the `gh auth status` re-detect
-that login's fix already requires; where GH-AUTH passed on entry and Authenticate is skipped, it
-is the account line that detect has already printed.
-
-**Said once per sitting, not once per skill.** Those lines belong to the first provisioner that
-reaches a sign-in — usually this one, since the SSO chain starts here. If another provisioner
-already said them in this session — the workshop case, where `app-foundation-setup` runs the three
-in order — don't recite them again. Say only what changes here: the first bullet, where this
-skill's CLI keeps its token, and the third, that this skill drives no browser at all. Then check
-the owner is still happy to go ahead. The boundary promise and the credential window below are not
-re-recited — they were said once and they hold for the whole sitting. Consent recited three times
-stops being heard the first time. Whichever way the lines are said, say only the platform in front
-of you: they carry Windows and macOS so one file serves both, and reading both aloud is not the
-intent.
-
-**"Open the page" means the owner's own browser.** Everywhere this skill says Claude opens a page
-— the device-code page, the sign-out page, the owner-only settings links, the signup form — it
-means handing the address to the machine's default browser and stopping there. Never a
-browser-automation tool, never an automation profile, not once. This is the whole reason the skill
-carries no teardown contract: it tears nothing down because it drives nothing. Satisfying an "open
-the page" step with browser automation would drive a browser holding the owner's GitHub session on
-a profile nothing in this file is written to delete, and would void that exemption silently. If a
-step seems to need a driven browser, it belongs to `vercel-provision` or `supabase-provision`,
-which carry the teardown contract — not here.
-
-**The hands-off window.** It opens the moment Claude hands the owner a sign-in of any kind — a
-login command started, a link given, a page opened in their browser, an OAuth authorize screen or
-a device-code screen reached — and it opens *without waiting to see what the screen says*. In this
-skill the sign-in is always in the owner's own browser, which Claude by design cannot see, so
-there is never a screen to read first. An unexpected re-auth mid-run is the same case: an expired
-session turns an authorize screen into a full password and MFA prompt with no warning, so the
-window opens when the screen is handed over, not when its contents are known. If Claude cannot see
-the owner's screen, that is a reason to be hands-off, not a reason to check. Claude says
-"hands-off — tell me when you're done" and stops there — that message ends Claude's turn. From
-that message until the owner says they're done, Claude makes no further tool calls — no reads of
-any kind, no screenshots, no keystrokes. Whatever was already running — a login command, or
-nothing at all while the owner works in their own browser — keeps running untouched. Only the
-owner saying they're done closes the window — never a timeout, never peeking to check progress.
-Ending the turn is what makes that real: the announce and the owner's "done" bracket the window in
-the transcript, and the empty stretch between them is the evidence: verifiable, not promised.
-
-## Authenticate
-
-CLI first, browser as fallback:
-
-1. `gh auth login --web` (owner-in-loop). gh prints a one-time code and opens the browser; the
-   hands-off window holds while the owner signs in and clears any 2FA challenge, until the owner
-   says they're done.
-2. No browser opened, or the flow stalled? The owner opens <https://github.com/login/device>
-   themselves — any browser — and enters the code gh printed. Same end state.
-
-Either way, the token lands wherever gh keeps it: its native credential store (Windows Credential
-Manager; macOS Keychain), or a plain-text file in gh's own config folder where the CLI can't reach
-a credential store. Nothing is minted by hand: no personal access tokens, nothing for the owner to
-copy or for Claude to see.
-
-If `gh auth status` shows the wrong account active, `gh auth switch` — don't re-login. On the
-create-fresh exception, Claude runs `gh auth logout` for the employee's or shared account, and
-the owner signs out of github.com in the browser themselves — Claude opens the page at most,
-hands off from there — before the new account signs in, so SSO can only chain the right identity.
-
-## Adopt
-
-Work the remaining GH-* failures in registry order. GH-2FA, GH-EMAIL, and GH-RECOVERY are
-owner-only: open the page for the owner — or give the link — with the plain-English words, the
-owner acts, then re-detect: GH-2FA via the API, GH-EMAIL via the API plus the owner's fresh
-confirmation, GH-RECOVERY by asking again. Never verify by reading the settings page.
-
-- **2FA** (GH-2FA): enrollment belongs in the day-before pre-flight email, done at home with the
-  authenticator walkthrough. An adopt-cohort owner without 2FA does enrollment now at
-  <https://github.com/settings/security> — Claude cannot do this step for them.
-- **Business email** (GH-EMAIL): the owner adds their business address at
-  <https://github.com/settings/emails>, clicks the verification email, and sets it primary. A
-  personal address already on the account can stay — primary is what must be the business one.
-- **Recovery codes** (GH-RECOVERY): <https://github.com/settings/auth/recovery-codes>; the owner
-  saves them and names where, out loud. Claude never sees the codes.
+Already authenticated → never re-authenticate for a scope this skill can work without: `user`
+missing costs nothing here (git identity falls back to the noreply address). Only a token missing
+`repo` or `workflow` — which would fail the first push — gets
+`gh auth refresh -h github.com -s repo,workflow`: same device-code choreography, no new question.
+Wrong account active → `gh auth switch`, never a re-login.
 
 ## Create
 
-Account creation and 2FA enrollment belong in the pre-flight email — at home, phone verification
-included. The live create path is the no-show fallback, and it carries one hard rule: each signup
-runs over the attendee's own phone tethering, staggered across attendees — never several fresh
-signups behind one venue IP, which flags accounts at creation.
+Account creation is the owner's moment inside Claude's choreography:
 
-The owner signs up at <https://github.com/signup> with the business email and completes phone
-verification themselves; Claude opens the page, then hands off for the whole form. Then continue
-exactly as adopt: authenticate, 2FA, recovery codes.
+1. Heads-up line, then open <https://github.com/signup> — email pre-filled when the "not sure"
+   branch already collected it — and hand over: the owner types their own email, password and
+   username. Any email they like, personal or business — their call, no commentary.
+2. GitHub emails a launch code; the owner reads it from their inbox and enters it. Hands-off
+   throughout — the form holds their password.
+3. Signup lands signed in with the email verified by the launch code itself. From here Claude
+   drives every dashboard step; the owner never navigates settings pages. Continue at
+   [Connect](#connect).
 
-## Pass bar
+CAPTCHA is probabilistic — zero appearances in live testing, but GitHub scores the flow — so the
+owner stays at the keyboard for signup regardless, which is also who should be typing a password.
+The workshop-room rule stands: each fresh signup runs over the attendee's own phone tethering,
+staggered — never several signups behind one venue IP, which flags accounts at creation.
 
-Re-run the full group. This skill passes only when every check passes — convention 7's criteria
-are acceptance, not advice:
+## Git identity
 
-- **GH-2FA** — the API returns `true`. Empty output means missing token scope first, not a
-  verdict: apply the registry's scope note and re-detect — still empty after the refresh is a
-  FAIL ("could not verify"), never a pass.
-- **GH-EMAIL** — primary email is a business address the owner confirms they control. A 404 from
-  the detect is the same scope case — same refresh, same re-detect, same FAIL if it persists.
-- **GH-RECOVERY** — the owner names where the codes are saved.
+Set silently from what GitHub already knows — never ask a person their name through a machine they
+just signed into. From `gh api user`:
 
-Anything still failing is reported as FAIL with who has to act — never silently deferred.
+- `user.name` ← `.name`, falling back to `.login`.
+- `user.email` ← `.email`; when null — email set to private, or simply unreadable by this token —
+  the noreply address `<id>+<login>@users.noreply.github.com`, which GitHub accepts for any
+  account and keeps a private-email account's first push from a GH007 rejection.
+
+Only unset values are written (`git config --global`). Values already set pass as-is — announced,
+not corrected. A found email GitHub later refuses (GH007 on the first push) is a one-command
+repair to the noreply address at that moment, not this skill's failure to preempt.
+
+## Proof of done
+
+One compact block, every run, read fresh from the world:
+
+- `gh auth status --active` — the account, and token scopes including `repo` and `workflow`.
+- `git config --global user.name` / `user.email` — the values, and whether this run set them or
+  found them.
+- One line: "GitHub is done — account, CLI, git identity. Vercel can chain off this."
+
+Anything that could not be fixed prints **instead of** the done-line, as
+`FAIL — <what> — <who acts next>` — never silently deferred.
 
 ## Not this skill
 
-- Verifying the whole machine across all three platforms — `foundation-check`; this skill runs
-  only its own registry group.
-- Vercel and Supabase sign-in — `vercel-provision` and `supabase-provision`, which SSO with the
-  account this skill hardens.
-- Running the full onboarding to green — `app-foundation-setup` orchestrates the provisioners.
+- **Account hardening** — 2FA, recovery codes, backup emails, business-email policy. That bar
+  belongs to `foundation-check` in the app-building flow (seeded by the pre-flight email), not to a
+  connector: this skill delivers account + access for today.
+- The machine-wide doctor — `foundation-check`. This skill carries its own detects inline and
+  installs nothing beside itself.
+- Vercel and Supabase sign-in — `vercel-provision` (which hard-requires this skill's proof of
+  done) and `supabase-provision`.
 - Creating repositories — `app-builder` owns repo creation (M2).
 - CWK's `github-connector` — it mints a personal access token and registers an MCP server. The
-  pack authenticates through `gh auth login` only, leaving the token wherever gh itself stores it;
-  on a machine with both installed, "connect my GitHub" for workshop provisioning routes here.
+  pack authenticates through `gh auth login` only; on a machine with both installed, "connect my
+  GitHub" for workshop provisioning routes here.

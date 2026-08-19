@@ -18,8 +18,8 @@ plain English.
 | Skill | What it does |
 |---|---|
 | `skills/foundation-check` | One prompt → PASS/FAIL table across accounts, CLIs, git identity |
-| `skills/github-provision` | Detect-or-adopt GitHub account, git + gh install, auth, 2FA verified |
-| `skills/vercel-provision` | Vercel via GitHub SSO, CLI login, GitHub app connect |
+| `skills/github-provision` | Detection-first GitHub connector: account, gh auth (`repo`+`workflow`), git identity from the profile |
+| `skills/vercel-provision` | Detection-first Vercel connector: Hobby account via Continue-with-GitHub, CLI device-flow login, GitHub app connect |
 | `skills/supabase-provision` | Supabase via GitHub SSO, org, CLI + token, smoke test |
 | `skills/app-foundation-setup` | Orchestrator: check → fix → re-check until PASS |
 | `skills/app-builder` | Plain English → live app: repo + Vercel link first, then scaffold, DB, push |
