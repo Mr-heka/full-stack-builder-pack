@@ -15,10 +15,11 @@ detect-before-create step:
 
 `github-provision` and `vercel-provision` are detection-first connectors that carry their own
 detects inline (see each skill); their groups below — CLI-GIT, CLI-GH, GIT-\*, GH-\* and CLI-NODE,
-CLI-VERCEL, VC-\* — remain the doctor's bar for the app-building flow. The `vercel-provision` and
-`supabase-provision` fixes assume the `GH-*` group already passes — their auth signs in with
-GitHub (SSO). `app-foundation-setup` runs the groups in order; `supabase-provision` running
-standalone runs the `GH-*` group first.
+CLI-VERCEL, VC-\* — remain the doctor's bar for the app-building flow. Their auth signs in with
+GitHub (SSO), so the `GH-*` group has to pass first: `vercel-provision` checks that itself and
+**routes to `github-provision`** where it does not, while the `supabase-provision` fixes assume it.
+`app-foundation-setup` runs the groups in order; `supabase-provision` running standalone runs the
+`GH-*` group first.
 
 ## Rules
 

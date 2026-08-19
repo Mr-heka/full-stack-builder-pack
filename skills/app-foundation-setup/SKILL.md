@@ -54,7 +54,8 @@ can't see (step 3).
      silent detect exists, and the detect there is a browser read of
      <https://github.com/apps/vercel> signed in as the owner. If `vercel-provision` ran this
      loop, the gate came with it. If its group was already green in step 1 — say a run
-     interrupted between CLI login and app connect — run `vercel-provision` anyway: its
+     interrupted between its Connect step and the GitHub-app step — run `vercel-provision`
+     anyway: its
      detect-skip walks past the green checks and lands on the GitHub-app step, which owns that
      detect under its own browser contract, credential window and teardown. Never
      run that detect from here — it belongs to the skill that owns the fix behind it, and a proof
