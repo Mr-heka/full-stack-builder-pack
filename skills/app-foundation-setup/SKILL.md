@@ -50,16 +50,17 @@ can't see (step 3).
 3. **The proofs the registry can't see.** A green registry is not quite done — two proofs live
    outside it, each with its own detect and its own owner:
 
-   - **The Vercel GitHub app (VC-APP)** — lives in `vercel-provision` step 3; no silent detect
-     exists, and the detect there is a browser read of <https://github.com/apps/vercel> signed in
-     as the owner. If `vercel-provision` ran this loop, the gate came with it. If its group was
-     already green in step 1 — say a run interrupted between CLI login and app connect — run
-     `vercel-provision` anyway: its detect-skip walks past the green checks and lands on step 3,
-     which owns that detect under its own consent lines, credential window and teardown. Never
+   - **The Vercel GitHub app (VC-APP)** — lives in `vercel-provision`'s GitHub-app step; no
+     silent detect exists, and the detect there is a browser read of
+     <https://github.com/apps/vercel> signed in as the owner. If `vercel-provision` ran this
+     loop, the gate came with it. If its group was already green in step 1 — say a run
+     interrupted between CLI login and app connect — run `vercel-provision` anyway: its
+     detect-skip walks past the green checks and lands on the GitHub-app step, which owns that
+     detect under its own browser contract, credential window and teardown. Never
      run that detect from here — it belongs to the skill that owns the fix behind it, and a proof
      read by one owner and fixed by another is how a half-installed app gets reported green. In
      that already-green path the actor comes from the browser mode: in extension mode
-     `vercel-provision` step 3 reads the page itself through the owner's connected browser —
+     `vercel-provision` reads the page itself through the owner's connected browser —
      read-only, announced; otherwise Claude gives the owner the link and names the two
      things to read back (the button says Configure rather than Install, and the owner's own
      account is listed as an install target with All repositories), and the owner reads them
@@ -110,28 +111,26 @@ anything.
 
 The owner types passwords and MFA codes when a sign-in page opens, answers the attestation
 questions fresh every run, and acts on owner-only links. Everything else is Claude's. During any
-credential entry, hands off completely under the provisioners' own contract — the "Consent and the
-credential window" section of whichever provisioner is running (convention 7). The announce ends
+credential entry, hands off completely under the provisioners' own contract — `supabase-provision`'s
+"Consent and the credential window" section; the two connectors carry the same hands-off rule
+inline in their own files (convention 7). The announce ends
 Claude's turn; only the owner saying they're done reopens it. This skill does not restate that
 contract in shorter words.
 
-**The consent lines are said once per sitting, not once per provisioner.** Running three
-provisioners in order is the case that would otherwise read the same promises to one attendee three
-times over, and consent recited three times stops being heard the first time. So: the first
-provisioner to reach a sign-in says its consent block whole. Each one after says only what changes
-— where *its own* CLI keeps its token, and, for a provisioner that may drive a browser, whose
-browser that is in this sitting's mode: the owner's own connected one, where grant clicks stay
+**The consent lines are said once per sitting, not once per provisioner.** Consent recited three
+times stops being heard the first time — which is why the two detection-first connectors recite no
+block at all: their own files collapse consent to the one-line heads-ups before a page opens and
+before any sign-in. The full consent block is `supabase-provision`'s, said whole the first time
+its sign-in is reached — where its CLI keeps its token, the hands-off window, and whose browser a
+driven step uses in this sitting's mode: the owner's own connected one, where grant clicks stay
 theirs and teardown is a disconnect that deletes nothing, or the fallback's throwaway profile —
 deleted when provisioning ends, checked gone, the owner told exactly what to delete if anything
-still holds it open — and checks the owner is still happy to go ahead. Saying that second thing is
-not repetition of the first block but the honest difference from it: `github-provision` promises
-it never clicks or types in a browser, so a provisioner that drives one is changing the promise
-the owner already heard. The boundary promise and the credential window are not re-recited; they were said
-once and they hold for the whole sitting, across all three. That rule is each provisioner's own,
-written into its "Said once per sitting" paragraph; this skill only supplies what the provisioner
-cannot know on its own — whether it is the first to reach a sign-in in this session. Track that,
-and tell it. What is never in play is skipping the lines entirely: a sitting where no provisioner
-said them whole is a sitting where the owner never gave consent.
+still holds it open. The boundary promise and the credential window are not re-recited; said once,
+they hold for the whole sitting, across all three. That rule is written into supabase's "Said once
+per sitting" paragraph; this skill only supplies what a provisioner cannot know on its own —
+whether the lines were already said in this session. Track that, and tell it. What is never in
+play is skipping the lines entirely: a sitting that reaches a supabase sign-in without the block
+said whole is a sitting where the owner never gave consent.
 
 Before the banner, account for every browser driven during this run. Each provisioner that drove
 one reports one of its report lines — connected to the owner's own browser via `browser-connect`

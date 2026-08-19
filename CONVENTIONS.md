@@ -179,8 +179,11 @@ account:
 3. **Recovery codes saved, and the owner states where.** Recovery codes only exist once 2FA is on,
    which is why enrollment comes first. **Claude never sees the codes.**
 
-These are hard acceptance criteria for provisioning, not advice. Provisioning does not pass without
-all three.
+These are hard acceptance criteria for the **app-building flow** — `foundation-check`'s bar,
+seeded by the day-before pre-flight email — not for the workshop connectors: `github-provision`
+and `vercel-provision` deliver account + access, detection-first, and defer hardening to that flow
+rather than interrogating in the room. An app is not built on an account that has not cleared all
+three; a connector finishes without asking about any of them.
 
 Related handling rules: tokens live in each official CLI's native credential store (`gh` → OS
 credential store (Windows Credential Manager / macOS Keychain), `supabase` → keyring or its
@@ -197,7 +200,10 @@ were never Claude's to create. An existing signed-in session found there is a de
 announce ("already signed in as X — skipping signup"), never contamination. The **fallback** —
 the daily browser isn't Chrome/Edge, or the owner declines the extension — is a kit-owned
 Playwright profile created fresh for the run under `~/.fsbp/browser-profiles/`, deleted after
-provisioning and checked gone. In either mode, any click that grants, authorizes, or deletes
+provisioning and checked gone. Extension mode is for the single-owner attendee machine, where
+riding the owner's own sessions is the feature; on operator and multi-account machines, where
+cross-account linking is the hazard, fresh-per-run kit profiles deleted after provisioning stay
+the rule. In either mode, any click that grants, authorizes, or deletes
 stays the owner's click — in extension mode that is a consent choice made deliberately, not a
 technical limit.
 

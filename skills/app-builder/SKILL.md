@@ -73,7 +73,7 @@ touchpoints above assume — and neither needs a profile or a credential window.
 the driven-browser report is always the same one — **no browser driven**. Browsers get
 driven during provisioning, under the provisioners' own "Consent and the credential window" contract
 ([`supabase-provision`](../supabase-provision/SKILL.md#consent-and-the-credential-window),
-[`vercel-provision`](../vercel-provision/SKILL.md#consent-and-the-credential-window)); this skill
+[`vercel-provision`](../vercel-provision/SKILL.md#the-browser)); this skill
 neither restates that contract nor needs it.
 
 A **teardown FAILED** line carried in from the foundation run stays advisory here, exactly as

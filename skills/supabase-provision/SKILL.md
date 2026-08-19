@@ -49,19 +49,14 @@ waits for the owner's go-ahead:
 >   on this machine holds that folder open I'll tell you and show you exactly what to delete
 >   yourself, rather than pretend it's gone.
 
-**Said once per sitting, not once per skill.** Those lines belong to the first provisioner that
-reaches a sign-in. If another provisioner already said them in this session — the workshop case,
-where `app-foundation-setup` runs the three in order — don't recite them again. Say only what
-changes here: the first bullet, where this skill's CLI keeps its token, and the third, whole —
-which browser a driven step uses in this sitting's mode: the owner's own connected one, where
-clicks that grant access stay theirs and teardown is a disconnect that deletes nothing, or the
-fallback's throwaway profile, deleted when provisioning ends, checked gone, with anything still
-holding it — and what the owner must delete themselves — named out loud. That third bullet is a
-change, not repetition: `github-provision` — normally the first to reach a sign-in — promises it
-never clicks or types in a browser, so what changes here is precisely that this skill does, and
-whose browser that is — the question "I may drive a browser" raises the moment it is said — is
-exactly what the bullet answers. Then check the owner is still happy to go ahead. The boundary
-promise and the credential window below
+**Said once per sitting, not once per skill.** This block is the sitting's one full consent
+recital: the detection-first connectors (`github-provision`, `vercel-provision`) collapse consent
+to one-line heads-ups in their own files and recite no block, so these lines are said whole the
+first time this skill reaches a sign-in — even when the connectors ran first in the workshop case,
+where `app-foundation-setup` runs the three in order. If some earlier skill in this session
+already said them whole, don't recite them again: say only what changes here — the first bullet,
+where this skill's CLI keeps its token, and the third, whole — and check the owner is still happy
+to go ahead. The boundary promise and the credential window below
 are not re-recited — they were said once and they hold for the whole sitting. Consent recited three
 times stops being heard the first time. Whichever way the lines are said, say only the platform in
 front of you: they carry Windows and macOS so one file serves both, and reading both aloud is not

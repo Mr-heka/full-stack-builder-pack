@@ -4,19 +4,21 @@ The reusable detect module for the M3 onboarding skills — 16 checks. This file
 [PASTE-PROMPT.md](PASTE-PROMPT.md) embeds a standalone copy of the 15 account/CLI checks,
 regenerated in the same commit as any change here — BROWSER is the one check it leaves out,
 because it needs the installed pack (the vendored `browser-connect` scripts and the MCP config)
-and belongs to install day, not the day-before email. `foundation-check` runs every check; each
-provisioner opens with its own group as its detect-before-create step:
+and belongs to install day, not the day-before email. `foundation-check` runs every check;
+`browser-connect` and `supabase-provision` each open with their own group as their
+detect-before-create step:
 
 | Skill | Opens with |
 |---|---|
 | `browser-connect` | BROWSER |
-| `github-provision` | CLI-GIT, CLI-GH, GIT-\*, GH-\* |
-| `vercel-provision` | CLI-NODE, CLI-VERCEL, VC-\* |
 | `supabase-provision` | CLI-SUPABASE, SB-\* |
 
-The `vercel-provision` and `supabase-provision` groups assume the `GH-*` group already passes —
-their auth fixes sign in with GitHub (SSO). `app-foundation-setup` runs the groups in order; a
-provisioner running standalone runs the `GH-*` group first.
+`github-provision` and `vercel-provision` are detection-first connectors that carry their own
+detects inline (see each skill); their groups below — CLI-GIT, CLI-GH, GIT-\*, GH-\* and CLI-NODE,
+CLI-VERCEL, VC-\* — remain the doctor's bar for the app-building flow. The `vercel-provision` and
+`supabase-provision` fixes assume the `GH-*` group already passes — their auth signs in with
+GitHub (SSO). `app-foundation-setup` runs the groups in order; `supabase-provision` running
+standalone runs the `GH-*` group first.
 
 ## Rules
 
